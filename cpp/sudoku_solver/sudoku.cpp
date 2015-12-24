@@ -319,9 +319,8 @@ bool solve_board(char board[9][9]){
   for(int i = '1'; i <= '9'; i++){
     mmreps++;  
     if(make_move(position, i, board)){ 
-	board[r][c] = i;
       
-      // If the board has been solved return true.
+      // Check if the board has been solved.
       if(solve_board(board)){
 	return true;
       }
