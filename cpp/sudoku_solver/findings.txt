@@ -1,0 +1,232 @@
+Summarise your findings here (see specification).
+
+// The program has been tested for memory leaks using valgrind.
+// No leaks were found. 25 bytes were allocated and 25 were freed.
+
+// All warnings have been addressed.
+
+After completing the puzzle I attempted to measure difficulty in three
+distinct ways. Below you will find an explanation of the methods I
+employed followed by a conclusion derived from the results I 
+obtained. 
+
+Before discussion begins I would like to point out the following
+terminology:
+
+Theoretical difficulty is determined by how many digits the initial
+puzzle has. 
+
+Empirical difficulty is determined by the amount of effort 
+(calls) or time it takes an algorithm to solve the board. 
+
+
+The algorithm within solve_board simply places a number that is allowed but
+not necessarily a correct solution to a cell and then moves on to the
+next cell, untill it finds a combination of such numbers that can fill
+the entire board.
+
+Under the above definitions I propose that theoretical difficulty and empirical difficulty
+may differ as empirical difficulty should depend on each individual scenario. 
+
+========== Measuring the number of digits in the puzzle ==========
+
+My initial approach in measuring the difficulty of the puzzles was to
+measure the number of integers provided.
+
+I did so by creating a function within sudoku.cpp name difficulty
+which measures and outputs the number of digits provided in each
+table.
+
+After applying this method I found the following:
+
+----------------------------------------------
+|   FILENAME   | No. DIGITS |   DIFFICULTY   |
+----------------------------------------------
+|   easy.dat   |     26     |      Easy      |
+----------------------------------------------
+|  medium.dat  |     25     |     Medium     |
+----------------------------------------------
+| mystery1.dat |     23     | Extremely Hard |
+----------------------------------------------
+| mystery2.dat |     24     |   Impossible   |
+----------------------------------------------
+| mystery3.dat |     24     |      Hard      |
+----------------------------------------------
+
+Logically the fewer empty fields that a human or a computer has to
+solve the easier the puzzle will be. Therefore the number of initial
+digits can be used to make an estimate of how difficult it would be
+for the computer to solve each board. 
+
+After inspecting the results I determined the above (theoretical) difficulty scale.
+
+========== Measuring number of recursions ==========
+
+Secondly I attempted an empirical approach by counting the number of recursive calls.
+
+I created a global variable in sudoku.cpp named reps. 
+Every time the solved function is called the first
+thing it did was to increase reps by 1.
+
+After applying this method I found the following:
+
+----------------------------------------------
+|   FILENAME   | No. CALLS  |   DIFFICULTY   |
+----------------------------------------------
+|   easy.dat   |    2,172   |      Easy      |
+----------------------------------------------
+|  medium.dat  |   15,662   |      Hard      |
+----------------------------------------------
+| mystery1.dat |  421,547   | Extremely Hard |
+----------------------------------------------
+| mystery2.dat |   11,533   |   Impossible   |
+----------------------------------------------
+| mystery3.dat |   14,134   |     Medium     |
+----------------------------------------------
+
+Under the same logic I also created an attempts variable and placed it in the for loop
+that tests for possible moves.
+This approach counts all the attempted numbers (calls to make move) 
+the solver tried.
+
+After applying it I found the following:
+
+----------------------------------------------
+|   FILENAME   |No. ATTEMPTS|   DIFFICULTY   |
+----------------------------------------------
+|   easy.dat   |    19,337  |      Easy      |
+----------------------------------------------
+|  medium.dat  |   140,743  |      Hard      |
+----------------------------------------------
+| mystery1.dat | 3,793,687  | Extremely Hard |
+----------------------------------------------
+| mystery2.dat |   103,797  |   Impossible   |
+----------------------------------------------
+| mystery3.dat |   126,954  |     Medium     |
+----------------------------------------------
+
+========== Measuring execution time ==========
+
+Finally I performed a second empirical test by measuring the execution
+time of solve_board for each file by creating two variables dubbed t1 and t2. 
+
+t1 was set to the current time right before the solve_board call
+t2 was set to the current time right after the solve_board call
+
+then I outputed their difference in microseconds and found the 
+following results:
+
+----------------------------------------------
+|   FILENAME   |MICROSECONDS|   DIFFICULTY   |
+----------------------------------------------
+|   easy.dat   |     2,143  |      Easy      |
+----------------------------------------------
+|  medium.dat  |    16,266  |      Hard      |
+----------------------------------------------
+| mystery1.dat |   416,329  | Extremely Hard |
+----------------------------------------------
+| mystery2.dat |    12,140  |   Impossible   |
+----------------------------------------------
+| mystery3.dat |    12,456  |     Medium     |
+----------------------------------------------
+
+
+
+To test execution time I used the chrono library.
+I found a brief explanation on using the library
+through the following link:
+http://stackoverflow.com/questions/22387586/c-measuring-execution-time-of-a-function
+
+=========== Conclusion ==========
+
+The first method used (counting the digits of the initial board)
+assigns a theoretical level of difficulty to each puzzle.
+
+The other methods empirically test how much effort it takes for the
+computer to solve each puzzle and their results diverge from the
+theoretical difficulty. By inspecting the final two tests you can see
+that "mystery3.dat" which is was estimated to be the hard puzzle is solved
+faster than "medium.dat". 
+
+This is probably because the approach taken
+by solve_board is a brute force approach and its performance exponentially depends
+on the initial setting of the board. 
+
+To test this hypothesis I inverted the series in which the solve_board
+attempts to place digits so that it starts by testing the largest
+possible solutions first instead of the smallest.
+
+The results (summarized below) confirmed my hypothesis as the "medium"
+puzzle was now solved faster than "mystery3.dat" thus confirming that
+indeed performance of solve_board and thus the empirical difficulty 
+of each puzzle depends on its initial setting.
+
+
+/****                          Empirical Results                              ****/
+
+-----------------------------------------------------------------------------------
+----------------------------         9 to 1        --------------------------------
+-----------------------------------------------------------------------------------
+|   FILENAME   | No. CALLS | No. ATTEMPTS | MICROSECONDS | CAL/DUR | DIFFICULTY   |
+-----------------------------------------------------------------------------------
+|   easy.dat   |    1,595  |      14,108  |       1,508  |   1.058 |  Easy        |
+-----------------------------------------------------------------------------------
+|  medium.dat  |   10,103  |      90,676  |      10,792  |   0.936 |  Medium      |
+-----------------------------------------------------------------------------------
+| mystery1.dat |   16,454  |     147,840  |      16,352  |   1.001 |  Hard        |
+-----------------------------------------------------------------------------------
+| mystery2.dat |   11,533  |     103,797  |      12,441  |   0.927 |  Impossible  |
+-----------------------------------------------------------------------------------
+| mystery3.dat |   16,460  |     147,918  |      15,989  |   1.029 |Extremely Hard|
+-----------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------
+----------------------------         1 to 9        --------------------------------
+-----------------------------------------------------------------------------------
+|   FILENAME   | No. CALLS | No. ATTEMPTS | MICROSECONDS | CAL/DUR | DIFFICULTY   |
+-----------------------------------------------------------------------------------
+|   easy.dat   |    2,172  |      19,337  |       2,143  |   1.014 |  Easy        |
+-----------------------------------------------------------------------------------
+|  medium.dat  |   15,662  |     140,743  |      16,266  |   0.963 |  Hard        |
+-----------------------------------------------------------------------------------
+| mystery1.dat |  421,547  |   3,793,687  |     416,329  |   1.013 |Extremely Hard|
+-----------------------------------------------------------------------------------
+| mystery2.dat |   11,533  |     103,797  |      12,140  |   0.950 |  Impossible  |
+-----------------------------------------------------------------------------------
+| mystery3.dat |   13,134  |     126,954  |      12,456  |   1.135 |  Medium      |
+-----------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------
+----------------------------        Average        -------------------------
+----------------------------------------------------------------------------
+|   FILENAME   | No. CALLS | No. ATTEMPTS | MICROSECONDS |    DIFFICULTY   |
+----------------------------------------------------------------------------
+|   easy.dat   |    1,884  |      16,723  |       1,826  |     Easy        |
+----------------------------------------------------------------------------
+|  medium.dat  |   12,883  |     115,710  |      13,529  |     Medium      |
+----------------------------------------------------------------------------
+| mystery1.dat |  219,001  |   1,970,764  |     216,341  |  Extremely Hard |
+----------------------------------------------------------------------------
+| mystery2.dat |   11,533  |     103,797  |      12,291  |    Impossible   |
+----------------------------------------------------------------------------
+| mystery3.dat |   14,767  |     137,436  |      14,223  |     Hard        |
+----------------------------------------------------------------------------
+
+/**** END OF EMPIRICAL FINDINGS ****/
+
+To conclude if the average performance of solve_board for each puzzle
+is calculated, and then an average empirical difficulty is drawn from
+these results, it is consistent with the theoretical difficulty 
+and the following statements hold: 
+
+easy.dat is the easy puzzle
+medium.dat is the medium puzzle
+
+mystery1.dat is the extremely hard puzzle
+mystery2.dat is the impossible puzzle
+mystery3.dat is the hard puzzle
+
+
+*NOTE: The CALLS / DURATION ratio is a rough approximation of how many
+ recursive calls the computer was able to execute per
+ microsecond.
