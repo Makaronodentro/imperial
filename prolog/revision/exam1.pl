@@ -53,13 +53,17 @@ common(L1, L2, L) :-
     \+setof(X, (member(X,L1),member(X,L2)), L), % only in this case L = []
     L = []. % return an empty list
     
-% 5 delete(L, Result).
+% 5 delete(L, Result) | Result is list L with every other element deleted.
 
-delete([X],[X]).
-delete([H,_], [H]).
+% Call when L has 1 element left in it (base case). Return false if empty.
+delete([X],[X]). % Copy the single element into the Result.
 
-delete([H1,_|T], [H1|R]) :-
-    delete(T, R).
+% Call if L has 2 elements (base case 2).
+delete([H,_], [H]). % Discard the second and copy the first into Result
+
+% Call for every other case
+delete([H1,_|T], [H1|R]) :- % Place the first element in Result, discard 2nd
+    delete(T, R). % Recursively call the rest of the list
     
 % 6 process(L1, L2, Consistent Inconsistent).
 
@@ -102,6 +106,17 @@ drop([H|T], [H|R], N, NLeft) :-
     NLeft > 1,
     New is NLeft - 1,
     drop(T, R, N, New).
+    
+drop1(L, N, []) :-
+    length(L, X),
+    X < N.
+
+drop1(L, N, Result) :-
+    Y is N - 1,
+    length(X, Y),
+    append(X, [_|T], L),
+    drop1(T, N, NewResult),
+    append(X, NewResult, Result).
     
 % 9 enrollment(L, Student, Degree).
 
