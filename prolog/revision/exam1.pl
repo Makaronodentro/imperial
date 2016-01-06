@@ -14,17 +14,31 @@ subList([H|T], L2) :-
 % 2 difference(L1, L2, L) | L consists of all X in(X, L1), \+in(X, L2)
 
 % Call if L1 is empty - then L will be empty (base case).
-difference([], _, []).
+difference_proc([], _, []).
 
 % Call if L1 is not empty
-difference([H|T], L2, [H|L]) :- % place H in the front of L
+difference_proc([H|T], L2, [H|L]) :- % place H in the front of L
     \+member(H, L2), % if H is not a member of L2
-    difference(T, L2, L). % recursively check the rest of the list
+    difference_proc(T, L2, L). % recursively check the rest of the list
 
 % Call if L1 is not empty & H is a member of L2
-difference([H|T], L2, L) :-
+difference_proc([H|T], L2, L) :-
     member(H, L2), % if this is not included this call is not mutually exclusive to the previous
-    difference(T, L2, L). % simply discard H
+    difference_proc(T, L2, L). % simply discard H
+
+% Tail recursive version
+difference(L1, L2, L) :-
+    difference(L1, L2, [], L).
+
+difference([], _, Acc, Acc).
+difference([H|T], L2, Acc, L) :-
+    (
+        member(H, L2)
+        ->
+        difference(T, L2, Acc, L)
+        ;
+        difference(T, L2, [H|Acc], L)
+    ).
 
 
 % 3 sift(L, N, Result) | Result is L without occurences > N
@@ -79,39 +93,33 @@ process(L1, [(N,A,S)|T2], C, [(N,A,S)|T4]) :-
     
 % 7 split(L, N, L1, L2)
 
-split([], _, [], []).
+split(L, N, L1, L2) :-
+    length(L1, N),
+    append(L1, L2, L).
 
-split([H|T], N, [H|L1], L2) :-
+split_proc([], _, [], []).
+
+split_proc([H|T], N, [H|L1], L2) :-
     N > 0,
     New is N - 1,
-    split(T, New, L1, L2).
+    split_proc(T, New, L1, L2).
     
-split([H|T], N, L1, [H|L2]) :-
+split_proc([H|T], N, L1, [H|L2]) :-
     N = 0,
-    split(T, N, L1, L2).
+    split_proc(T, N, L1, L2).
     
 % 8 drop(L, N, Result) | Drop every N'th element from a list L.
 
 drop(L, N, Result) :-
+    length(L, X),
+    NLeft = X / N,
     drop(L, Result, N, N).
-
-drop([], [], _, _).
-
-drop([_|T], R, N, NLeft) :-
-    NLeft = 1,
-    drop(T, R, N, N).
     
-
-drop([H|T], [H|R], N, NLeft) :-
-    NLeft > 1,
-    New is NLeft - 1,
-    drop(T, R, N, New).
-    
-drop1(L, N, []) :-
+drop(L, N, L) :-
     length(L, X),
     X < N.
 
-drop1(L, N, Result) :-
+drop(L, N, Result) :-
     Y is N - 1,
     length(X, Y),
     append(X, [_|T], L),
@@ -120,12 +128,9 @@ drop1(L, N, Result) :-
     
 % 9 enrollment(L, Student, Degree).
 
-enrollment([(_,LS)|T], S, D) :-
-    \+member(S, LS),
-    enrollment(T, S, D).
-
-enrollment([(D,LS)|_], S, D) :-
-    member(S, LS).
+enrollment(L, S, D) :-
+    member((D,SL), L),
+    member(S, SL).
     
 % 10 student_list(L, Meng, MSc).
 
