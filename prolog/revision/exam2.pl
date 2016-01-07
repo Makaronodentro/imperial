@@ -102,10 +102,95 @@ oldest_people([(Person, _, Age)|T], Oldest) :-
 oldest_people([], _, Oldest, Oldest).
 oldest_people([(Person, _, Age)|T], AgeAcc, PersonAcc, Oldest) :-
     (
-        Age > AgeAcc -> AgeNext = Age, OldestNext = [Person]
+        Age > AgeAcc 
+        -> 
+            AgeNext = Age, 
+            OldestNext = [Person]
         ;
-        Age = AgeAcc -> AgeNext = Age, OldestNext = [Person|PersonAcc]
+        Age = AgeAcc 
+        -> 
+            AgeNext = Age, 
+            OldestNext = [Person|PersonAcc]
         ;
-        Age < AgeAcc -> AgeNext = AgeAcc, OldestNext = PersonAcc
+        Age < AgeAcc 
+        -> 
+            AgeNext = AgeAcc, 
+            OldestNext = PersonAcc
     ),
     oldest_people(T, AgeNext, OldestNext, Oldest).
+
+% 4 Split the list into a list of Males and a list of Females.
+
+% (Person, Sex, Age)
+
+% 4.1
+
+split_sex_proc([], [], []).
+
+split_sex_proc([(P, male, Age)|T], [(P, Age)|Males], Females) :-
+    split_sex_proc(T, Males, Females).
+
+split_sex_proc([(P, female, Age)|T], Males, [(P, Age)|Females]) :-
+    split_sex_proc(T, Males, Females).
+
+% 4.2 Tail-recursive
+
+%  Using accumulator
+split(L, M, F) :-
+    split(L, [], M, [], F).
+    
+split([], MAcc, MAcc, FAcc, FAcc).
+split([(P, X, Age)|T], MAcc, M, FAcc, F) :-
+    (
+        X = male
+        ->
+            append(MAcc, [(P, Age)], MNew),
+            split(T, MNew, M, FAcc, F)
+        ;
+        X = female
+        ->
+            append(FAcc, [(P, Age)], FNew),
+            split(T, MAcc, M, FNew, F)
+    ).
+
+% Without accumulator
+split_sex([], [], []).
+split_sex([(P,Sex,Age)|Rest], Males, Females) :-
+   (
+Sex = male ->
+       Males = [(P,Age)|RestMales], Females = RestFemales
+    ;
+       Males = RestMales, Females = [(P,Age)|RestFemales]
+   ),
+     % can put a cut here
+   split_sex(Rest, RestMales, RestFemales).
+
+% 4.3 
+
+split_sex_nodup(List, Males, Females) :-
+   split_nodup(List, [], [], Males, Females).
+
+
+split_nodup([], MalesSofar, FemalesSofar, MalesSofar, FemalesSofar).
+
+split_nodup([(P,Sex,Age)|Rest], MalesSofar, FemalesSofar, Males, Females) :-
+   (Sex = male
+    ->
+        FemalesSofarX = FemalesSofar,
+        (
+        member((P,Age), MalesSofar)
+         ->
+            MalesSofarX = MalesSofar
+         ;
+            MalesSofarX = [(P,Age)|MalesSofar]
+        ) 
+    ;
+        % else Sex = female
+        MalesSofarX = MalesSofar,
+        (member((P,Age), FemalesSofar)
+         ->
+            FemalesSofarX = FemalesSofar
+         ;
+            FemalesSofarX = [(P,Age)|FemalesSofar]
+    ) ),
+   split_nodup(Rest, MalesSofarX, FemalesSofarX, Males, Females).
