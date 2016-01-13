@@ -185,13 +185,16 @@ dupli([H|T],N,[H|R],K) :- K > 0, K1 is K - 1, dupli([H|T],N,R,K1).
 
 % P16 NOT DONE
 
-drop([], _, []).
-
-drop(L, N, [X|R]) :-
-    length(X, N),
-    append(X, Y, L),
-    [_|Ys] = Y,
-    drop(Ys, N, R).
+drop(L1,N,L2) :- drop(L1,N,L2,N).
+ 
+drop([],_,[],_).
+drop([_|Xs],N,Ys,1) :- 
+    drop(Xs,N,Ys,N).
+    
+drop([X|Xs],N,[X|Ys],K) :- 
+    K > 1, 
+    K1 is K - 1, 
+    drop(Xs,N,Ys,K1).
     
 % P17
 
@@ -341,10 +344,10 @@ group3(L, G1, G2, G3) :-
 
 group([],[],[]).
 group(L, [N|Ns], [G|Gs]) :-
-    sumof([N|Ns], Length),
-    length(L, Length),
-    select_els(N, L, G),
-    subtract(L, G, L1),
+    sumof([N|Ns], Length), % get implied length
+    length(L, Length), % verify length
+    select_els(N, L, G), % select N elements from L
+    remove_el(L, G, L1),
     group(L1, Ns, Gs).
     
     
@@ -434,5 +437,28 @@ countLengthOccurences([H|T], L, X) :-
         ;
             X is OldX
     ).
+
+bsort(L,S) :- bsort(L, [], S).
+bsort([], A, A).
+bsort([H|T], A, S) :-
+    bubble(H, T, NT, Max),
+    bsort(NT, [Max|A], S).
     
-    
+bubble(X, [], [], X).
+bubble(X, [Y|T], [Y|NT], Max) :- X > Y, bubble(X, T, NT, Max).
+bubble(X, [Y|T], [X|NT], Max) :- X =< Y, bubble(Y, T, NT, Max).
+
+flatten3(L,F) :- flatten3(L,[],F).
+
+flatten3([], A, A).
+flatten3([H|T], A, F) :-
+    (
+        is_list(H)
+        ->
+            flatten3(H, H1),
+            append(A, H1, NA),
+            flatten3(T, NA, F)
+        ;
+            append(A, [H], NA),
+            flatten3(T, NA, F)
+    ).
