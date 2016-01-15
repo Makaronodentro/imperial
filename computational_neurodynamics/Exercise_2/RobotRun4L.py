@@ -174,8 +174,10 @@ for t in xrange(len(T)):
 
   plt.draw()
 
+  plt.pause(0.01)
   # Plot robot trajectory
   plt.figure(2)
   plt.scatter(x, y, marker='.')
   plt.draw()
 
+plt.pause(0.01)
