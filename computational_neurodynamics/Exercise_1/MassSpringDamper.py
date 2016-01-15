@@ -1,6 +1,6 @@
 """
 Computational Neurodynamics
-Exercise 1
+Exercise 1 b Mass Spring Damper System
 
 Solves the ODE dy/dt=y (exact solution: y(t)=exp(t)), by numerical
 simulation using the Euler method, for two different step sizes.
@@ -18,6 +18,12 @@ dt_large = 0.5  # Large integration step
 # Create time points
 Tmin = 0
 Tmax = 5
+
+# Variables
+
+m = 1
+c = 0.1
+k = 1
 
 # np.arrange | returns an array of size (Max - Min) / step
 
