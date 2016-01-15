@@ -1,6 +1,6 @@
 /* 1.7 | Rotate Matrix
  * -----------------------------------------------------------------------------
- * Desc  : given a NxN image, rotate it 90 degrees. Do it in place.
+ * Desc  : given a NxN image, rotate it 90 degrees clockwise. Do it in place.
  *
  * Notes : Avoid multiple concatenations as they are inefficient.
  */
@@ -14,11 +14,11 @@ using namespace std;
 
 void createMatrix(int***, int);
 
-void rotateMatrix(int**);
+void rotateMatrix(int**, int n);
 
 int main(int argc, char* argv[]){
 
-  int n = 9;
+  int n = 5;
 
   int** matrix;
 
@@ -31,7 +31,12 @@ int main(int argc, char* argv[]){
     cout<<endl;
   }
 
-  rotateMatrix(matrix);
+  for(int i = 0; i < n; i++){
+    cout<<"---";
+  }
+  cout<<endl;
+
+  rotateMatrix(matrix, n);
 
   for(int i = 0; i < n; i++){
     for(int j = 0; j < n; j++){
@@ -66,6 +71,24 @@ void createMatrix(int*** m, int n){
   }
 }
 
-void rotateMatrix(int** m){
+void rotateMatrix(int** matrix, int n){
+  for(int layer = 0; layer < n / 2; layer++){
+    int first = layer;
+    int last = n - layer - 1;
+    for(int i = first; i < last; i++){
 
+      int offset = i - first;
+
+      // get top
+      int top = matrix[first][i];
+      // Set top = left
+      matrix[first][i] = matrix[last - offset][first];
+      // Set left  = bottom
+      matrix[last - offset][first] = matrix[last][last - offset];
+      // Set bottom  =  right
+      matrix[last][last - offset] = matrix[i][last];
+      // Set right = top
+      matrix[i][last] = top;
+    }
+  }
 }

@@ -1,9 +1,9 @@
 """
 Computational Neurodynamics
-Exercise 1 b Mass Spring Damper System
+Exercise 1
 
-Solves the ODE dy/dt=y (exact solution: y(t)=exp(t)), by numerical
-simulation using the Euler method, for two different step sizes.
+Damped mass spring oscillator
+system for Question 1(b)
 
 (C) Murray Shanahan et al, 2015
 """
@@ -11,52 +11,33 @@ simulation using the Euler method, for two different step sizes.
 import numpy as np
 import matplotlib.pyplot as plt
 
-dt = 0.001      # Step size for exact solution
-dt_small = 0.1  # Small integration step
-dt_large = 0.5  # Large integration step
+# List of parameters
+m  = 1
+c  = 0.1
+k  = 1
+dt = 0.01
 
 # Create time points
 Tmin = 0
-Tmax = 5
+Tmax = 100
+T    = np.arange(Tmin, Tmax+dt, dt)
+y    = np.zeros(len(T))
+dy   = np.zeros(len(T))
+dy2  = np.zeros(len(T))
 
-# Variables
+# Initial y conditions
+y[0]   = 1
+dy[0]  = 0
+dy2[0] = (-c/m)*dy[0] - (k/m)*y[0]
 
-m = 1
-c = 0.1
-k = 1
-
-# np.arrange | returns an array of size (Max - Min) / step
-
-T = np.arange(Tmin, Tmax+dt, dt)
-T_small = np.arange(Tmin, Tmax+dt_small, dt_small)
-T_large = np.arange(Tmin, Tmax+dt_large, dt_large)
-
-# np.zeros | sets all elements of an array equal to zero
-
-y = np.zeros(len(T))
-y_small = np.zeros(len(T_small))
-y_large = np.zeros(len(T_large))
-
-# np.exp | calculate the exponential of all elements in the array
-
-# Exact solution
-y = np.exp(T)
-
-# Approximated solution with small integration Step
-y_small[0] = np.exp(Tmin)  # Initial value , input has one element
-for t in xrange(1, len(T_small)):
-  y_small[t] = y_small[t-1] + dt_small*y_small[t-1]
-
-# Approximated solution with large integration Step
-y_large[0] = np.exp(Tmin)  # Initial value , input has one element
-for t in xrange(1, len(T_large)):
-  y_large[t] = y_large[t-1] + dt_large*y_large[t-1]
+# Calculate ys
+for t in xrange(1, len(T)):
+  dy2[t] = (-c/m)*dy[t-1] - (k/m)*y[t-1]
+  dy[t]  = dy[t-1] + dt*dy2[t-1]
+  y[t]   = y[t-1] + dt*dy[t-1]
 
 # Plot the results
-plt.plot(T      , y      , 'b', label='Exact solution of y = $e^t$')
-plt.plot(T_small, y_small, 'g', label='Euler method $\delta$ t = ' + str(dt_small))
-plt.plot(T_large, y_large, 'r', label='Euler method $\delta$ t = ' + str(dt_large))
+plt.plot(T, y, 'r')
 plt.xlabel('t')
 plt.ylabel('y')
-plt.legend(loc=0)
 plt.show()

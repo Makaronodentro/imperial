@@ -41,4 +41,3 @@ plt.plot(T, y, 'r')
 plt.xlabel('t')
 plt.ylabel('y')
 plt.show()
-
