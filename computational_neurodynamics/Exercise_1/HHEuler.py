@@ -39,7 +39,6 @@ for t in xrange(len(T) - 1):
     ha = 0.07*np.exp((-v[t])/20.0)
     hb = 1.0/(np.exp(3-0.1*v[t])+1)
 
-    #                   aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa                 bbbbbbbbbbbbbbbbbbbbbbb
     m[t+1] = m[t] + dt*(ma*(1-m[t]) - mb*m[t])
 
     n[t+1] = n[t] + dt*(na*(1-n[t]) - nb*n[t])
