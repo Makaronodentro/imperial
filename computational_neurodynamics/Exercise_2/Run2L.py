@@ -22,13 +22,15 @@ net = Connect2L(N1, N2)
 
 ## Initialise layers
 for lr in xrange(len(net.layer)):
-  net.layer[lr].v = -65 * np.ones(net.layer[lr].N)
-  net.layer[lr].u = net.layer[lr].b * net.layer[lr].v
-  net.layer[lr].firings = np.array([])
+  net.layer[lr].v = -65 * np.ones(net.layer[lr].N) # array of -65 * no. neurons
+  net.layer[lr].u = net.layer[lr].b * net.layer[lr].v # recovery variable
+  net.layer[lr].firings = np.array([]) # empty array (no firings yet)
 
-v1 = np.zeros([T, N1])
+# time series to record voltage during simulation
+
+v1 = np.zeros([T, N1]) # time series of voltage for N1 neurons over T periods
 v2 = np.zeros([T, N2])
-u1 = np.zeros([T, N1])
+u1 = np.zeros([T, N1]) # recovery t-series of N1 neurons over T periods
 u2 = np.zeros([T, N2])
 
 ## SIMULATE
@@ -104,4 +106,3 @@ if firings2.size != 0:
   plt.title('Population 2 firings')
 
 plt.show()
-

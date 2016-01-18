@@ -55,4 +55,3 @@ def Connect2L(N0, N1):
   net.layer[1].delay[0]  = D * np.ones([N1, N0], dtype=int)
 
   return net
-
