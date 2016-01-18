@@ -40,7 +40,7 @@ for t in xrange(T):
    net.layer[0].I = Ib * np.ones(N1)
    net.layer[1].I = np.zeros(N2)
 
-   net.Update(t)
+   net.Update(t) # net.Update(t) updates ALL the layers in net
 
    v1[t] = net.layer[0].v
    v2[t] = net.layer[1].v
@@ -48,14 +48,17 @@ for t in xrange(T):
    u2[t] = net.layer[1].u
 
 ## Retrieve firings and add Dirac pulses for presentation
-firings1 = net.layer[0].firings
+firings1 = net.layer[0].firings # firings1[t, neuron_index]
 firings2 = net.layer[1].firings
 
 if firings1.size != 0:
-  v1[firings1[:, 0], firings1[:, 1]] = 30
+  v1[firings1[:, 0], firings1[:, 1]] = 30 # v1[t, neuron_index]
 
 if firings2.size != 0:
   v2[firings2[:, 0], firings2[:, 1]] = 30
+
+print firings1.size
+print firings2.size
 
 
 ## Plot membrane potentials

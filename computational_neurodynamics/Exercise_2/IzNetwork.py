@@ -19,13 +19,13 @@ class IzNetwork:
                         longer delay will result in failing to deliver spikes.
     """
 
-    self.Dmax = _Dmax
+    self.Dmax = _Dmax # Max delay
     self.Nlayers = len(_neuronsPerLayer)
 
-    self.layer = {}
+    self.layer = {} # empty array that will hold the layers
 
     for i, n in enumerate(_neuronsPerLayer):
-      self.layer[i] = IzLayer(n)
+      self.layer[i] = IzLayer(n) # populating the array
 
   def Update(self, t):
     """
@@ -35,8 +35,8 @@ class IzNetwork:
     Inputs:
     t -- Current timestep. Necessary to sort out the synaptic delays.
     """
-    for lr in xrange(self.Nlayers):
-      self.NeuronUpdate(lr, t)
+    for lr in xrange(self.Nlayers):  # traverse all the layers of the network
+      self.NeuronUpdate(lr, t) # update the individual neurons
 
   def NeuronUpdate(self, i, t):
     """
@@ -51,13 +51,14 @@ class IzNetwork:
     # Euler method step size in ms
     dt = 0.2
 
-    # Calculate current from incoming spikes
-    for j in xrange(self.Nlayers):
+    # Calculate current from incoming spikes, for all the layers
+    for j in xrange(self.Nlayers): # Nlayers is the number of Neurons per layer
 
       # If layer[i].S[j] exists then layer[i].factor[j] and
       # layer[i].delay[j] have to exist
       if j in self.layer[i].S:
         S = self.layer[i].S[j]  # target neuron->rows, source neuron->columns
+        # targets the specific neuron
 
         # Firings contains time and neuron idx of each spike.
         # [t, index of the neuron in the layer j]
@@ -122,4 +123,3 @@ class IzLayer:
     self.S      = {}
     self.delay  = {}
     self.factor = {}
-
