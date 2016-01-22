@@ -75,4 +75,3 @@ def RobotConnect4L(Ns, Nm):
   net.layer[2].delay[1]  = D * np.ones([Nm, Ns], dtype=int)
 
   return net
-

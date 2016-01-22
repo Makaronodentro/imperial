@@ -1,9 +1,9 @@
 import numpy as np
 
 
-class HHNetwork:
+class QIFNetwork:
   """
-  Network of Hodgkin-Huxley neurons.
+  Network of Quadratic Integrate-and-Fire neurons.
   """
 
   def __init__(self, _neuronsPerLayer, _Dmax):
@@ -25,7 +25,7 @@ class HHNetwork:
     self.layer = {} # empty array that will hold the layers
 
     for i, n in enumerate(_neuronsPerLayer):
-      self.layer[i] = HHLayer(n) # populating the array
+      self.layer[i] = QIFLayer(n) # populating the array
 
   def Update(self, t):
     """
@@ -40,7 +40,7 @@ class HHNetwork:
 
   def NeuronUpdate(self, i, t):
     """
-    HH neuron update function. Update one layer for 1 millisecond
+    QIF neuron update function. Update one layer for 1 millisecond
     using the Euler method.
 
     Inputs:
@@ -49,7 +49,7 @@ class HHNetwork:
     """
 
     # Euler method step size in ms
-    dt = 0.02
+    dt = 0.2
 
     # Calculate current from incoming spikes, for all the layers
     for j in xrange(self.Nlayers): # Nlayers is the number of Neurons per layer
@@ -58,7 +58,6 @@ class HHNetwork:
       # layer[i].delay[j] have to exist
       if j in self.layer[i].S:
         S = self.layer[i].S[j]  # target neuron->rows, source neuron->columns
-        # targets the specific neuron
 
         # Firings contains time and neuron idx of each spike.
         # [t, index of the neuron in the layer j]
@@ -75,38 +74,16 @@ class HHNetwork:
           self.layer[i].I[idx] += F * S[idx, firings[k-1, 1]]
           k = k-1
 
-    # Update v and u using the Izhikevich model and Euler method
+    # Update v and u using the QIF model and Euler method
     for k in xrange(int(1/dt)):
-      v = self.layer[i].v
+      v = self.layer[i].v # v is -65 * np.ones(net.layer[lr].N)
 
-      m = self.layer[i].m
-      n = self.layer[i].n
-      h = self.layer[i].h
-
-      iS = self.layer[i].iS
-
-      ma = (2.5-0.1*v)/((np.exp(2.5-0.1*v)) - 1)
-      mb = 4.0*np.exp((-v)/18.0)
-
-      na = (0.1-0.01*v)/(np.exp(1-0.1*v) - 1)
-      nb = 0.125*np.exp((-v)/80.0)
-
-      ha = 0.07*np.exp((-v)/20.0)
-      hb = 1.0/(np.exp(3-0.1*v)+1)
-
-      self.layer[i].m = m + dt*(ma*(1-m) - mb*m)
-      self.layer[i].n = n + dt*(na*(1-n) - nb*n)
-      self.layer[i].h = h + dt*(ha*(1-h) - hb*h)
-
-      self.layer[i].iS = (
-        self.layer[i].gNa*(m**3)*h*(v - self.layer[i].eNa) +
-        self.layer[i].gK*(n**4)*(v - self.layer[i].eK) +
-        self.layer[i].gL*(v - self.layer[i].eL) )
-
-      self.layer[i].v += dt*(-self.layer[i].iS + self.layer[i].I)
+      self.layer[i].v += dt*(
+        self.layer[i].a*(self.layer[i].vr - v)*(self.layer[i].vc - v) +
+        self.layer[i].R*self.layer[i].I) / self.layer[i].tau
 
       # Find index of neurons that have fired this millisecond
-      fired = np.where(self.layer[i].v >= 90)[0]
+      fired = np.where(self.layer[i].v >= 30)[0]
 
       if len(fired) > 0:
         for f in fired:
@@ -116,12 +93,19 @@ class HHNetwork:
           else:
             self.layer[i].firings = np.array([[t, f]])
 
+          # Reset the membrane potential after spikes
+          # Here's a little hack to see if vr is array or scalar
+          if hasattr(self.layer[i].vr, "__len__"):
+            self.layer[i].v[f]  = self.layer[i].vr[f]
+          else:
+            self.layer[i].v[f]  = self.layer[i].vr
+
     return
 
 
-class HHLayer:
+class QIFLayer:
   """
-  Layer of Hodgkin-Huxley neurons to be used inside an HHNetwork.
+  Layer of QIF neurons to be used inside an QIFNetwork.
   """
 
   def __init__(self, n):
@@ -132,21 +116,12 @@ class HHLayer:
     n -- Number of neurons in the layer
     """
 
-    self.N = n
-
-    self.gNa = np.zeros(n)
-    self.gK = np.zeros(n)
-    self.gL = np.zeros(n)
-
-    self.eNa = np.zeros(n)
-    self.eK = np.zeros(n)
-    self.eL = np.zeros(n)
-
-    self.m = np.zeros(n)
-    self.n = np.zeros(n)
-    self.h = np.zeros(n)
-
-    self.iS = np.zeros(n)
+    self.N   = n
+    self.R   = np.zeros(n)
+    self.tau = np.zeros(n)
+    self.vr  = np.zeros(n)
+    self.vc  = np.zeros(n)
+    self.a   = np.zeros(n)
 
     self.S      = {}
     self.delay  = {}

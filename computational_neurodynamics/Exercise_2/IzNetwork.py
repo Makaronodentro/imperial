@@ -77,7 +77,7 @@ class IzNetwork:
 
     # Update v and u using the Izhikevich model and Euler method
     for k in xrange(int(1/dt)):
-      v = self.layer[i].v
+      v = self.layer[i].v # v is an array
       u = self.layer[i].u
 
       self.layer[i].v += dt*(0.04*v*v + 5*v + 140 - u + self.layer[i].I)

@@ -15,9 +15,11 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
+  if(argc != 2) return 1;
+
   int key = atoi(argv[1]);
 
-  forward_list<int> list(100);
+  forward_list<int> list(10);
 
   int i = 0;
 
@@ -25,11 +27,17 @@ int main(int argc, char* argv[]){
     *it = ++i;
   }
 
+  for(auto it = list.begin(); it != list.end(); ++it){
+    cout<<*it<<endl;
+  }
+
   int count = 0;
 
   for(auto it = list.begin(); it != list.end(); ++it) count++;
 
   auto it = list.begin();
+
+  if(count >= key) return 0;
 
   i = 0;
   while(count - i - 1 != key){

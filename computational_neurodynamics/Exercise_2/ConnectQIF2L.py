@@ -9,15 +9,12 @@ from QIFNetwork import QIFNetwork
 import numpy as np
 import numpy.random as rn
 
-
 def ConnectQIF2L(N0, N1):
   """
-  Constructs two layers of QIF neurons and connects them together.  Pretty much
-  like Connect2L, but with QIF instead of Izhikevich neurons. Layers are
-  arrays of N neurons.
+  Constructs two layers of QIF neurons and connects them together.
+  Layers are arrays of N neurons. Parameters for regular spiking neurons
+  extracted from:
 
-  Inputs:
-  N0, N1 -- Number of neurons in layer 0 and 1, respectively
   """
 
   F = 60/np.sqrt(N1)  # Scaling factor
@@ -29,9 +26,12 @@ def ConnectQIF2L(N0, N1):
   # Neuron parameters
   # Each layer comprises a heterogenous set of neurons, with a small spread
   # of parameter values, so that they exhibit some dynamical variation
+  # (To get a homogenous population of canonical "regular spiking" neurons,
+  # multiply r by zero.)
 
-  # Layer 0
+  # Layer 0 (regular spiking)
   r = rn.rand(N0)
+
   net.layer[0].N = N0
   net.layer[0].R = 1.0
   net.layer[0].tau = 10
@@ -39,7 +39,7 @@ def ConnectQIF2L(N0, N1):
   net.layer[0].vc = -50 + 5*(r**2)
   net.layer[0].a = 0.2
 
-  # Layer 1
+  # Layer 1 (regular spiking)
   r = rn.rand(N1)
   net.layer[1].N = N1
   net.layer[1].R = 1.0

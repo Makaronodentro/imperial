@@ -127,4 +127,3 @@ class QIFLayer:
     self.S      = {}
     self.delay  = {}
     self.factor = {}
-
